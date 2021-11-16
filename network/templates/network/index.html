@@ -1,0 +1,100 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+
+<div id="page" class="border border-rounded">
+    {% if request.user.is_authenticated %}
+        <div style="height: 475px;">
+            <h1 id="title_of_page" align="left">Discover</h1>
+            <div id="create_post">
+                <form action="{% url 'index' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-row justify-content-center"> 
+                        <div class="col-8">
+                            <textarea class="form-control" rows="8" name="post_body" type="textarea" maxlength="240"></textarea>
+                        </div>
+                    </div>
+                    <button style="margin-top: 25px; color: white;" type="submit" value="Post" class="btn btn-light">Post</input>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div style="height: 100px;">
+            <h1 id="title_of_page" align="left">Discover</h1>
+        </div>
+    {% endif %}
+
+    {% for post in page_obj %}
+        <div id="post" class="border-top">
+            <div id="profile_info">
+                {% if post.user.profile_picture %}
+                    <img class="rounded-circle" id="propic" src="{{ post.user.profile_picture }}">
+                {% endif %}
+                <strong id="username"><a style="color: black; text-docoration: none;" href="{% url 'user' post.user.id %}">{{ post.user.username }}</a> &middot; {{ post.date_created|date:"f A · M j, Y" }}</strong><br>
+            </div>
+            <div id="post_body" data-post="{{ post.id }}">
+                <div id="submitted-div">
+                    {% if request.user == post.user %}
+                        <button style="display: inline; color: white; margin-top: -75px;" class="btn btn-light btn-sm" id="edit_post" data-edit="{{ post.id }}" type="submit" value="Edit">Edit Post</button><br>
+                    {% endif %}
+                    <h3 id="submitted" data-submitted="{{ post.id }}">{{ post.post_body }}</h3>
+                </div>
+                {% if request.user.is_authenticated %}
+                    {% if request.user in post.post_reactions.all %}
+                        <div>
+                            <h2 style="color: red; display: inline;">&#9829;</h2>
+                            <h4 id="like_count" style="font-size: 28px; display: inline;">{{ post.post_reactions.count }}</h4>
+                            <button style="display: inline; color: white;" class="btn btn-light btn-sm" id="unlike_post" data-unlike="{{ post.id }}" type="submit" value="unlike">Unlike</button><br>
+                        </div>
+                    {% else %}
+                        <div>
+                            <h2 style="color: grey; display: inline;">&#9829;</h2>
+                            <h4 id="like_count" style="font-size: 28px; display: inline;">{{ post.post_reactions.count }}</h4>
+                            <button style="display: inline; color: white;" class="btn btn-light btn-sm" id="like_post" data-like="{{ post.id }}" type="submit" value="Like">Like</button><br>
+                        </div>
+                    {% endif %}
+                {% else %} 
+                    <div>
+                        <h2 style="color: grey; display: inline;">&#9829;</h2>
+                        <h4 id="like_count" style="font-size: 28px; display: inline;">{{ post.post_reactions.count }}</h4>
+                        <a href="{% url 'login' %}"><button style="display: inline; color: white;" class="btn btn-light btn-sm">Like</button></a>
+                        <br>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+    <div id="pagination">
+        <nav aria-label="Page navigation example">
+            <span class="step-links">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page=1">&laquo; First</a></li>
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    
+                    <span class="current">
+                    <li class="page-item" aria-current="page">
+                        <a style="background-color: #00BFFF; color: white;" class="page-link" href="#">{{ page_obj.number }}<span class="sr-only">(current)</span></a>
+                    </li>
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </span>
+        </nav>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/posts.js' %}"></script>
+{% endblock %}

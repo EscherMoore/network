@@ -1,0 +1,113 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+
+    <div id="page" class="border border-rounded">
+
+        <div align="left" style="height: 300px;">
+            <h1 id="title_of_page">{{ user.username }}</h1>
+            <img style="margin-left: 25px;"class="rounded-circle" id="propic" src="{{ user.profile_picture }}">
+            <h4 style="display: inline; margin: 10px"><strong>{{ following.count }}</strong> Following</h4>
+            <h4 style="display: inline; margin: 10px"><strong>{{ followers.count }}</strong> Followers</h4>
+            {% if request.user.is_authenticated %}
+                {% if request.user.id != user.id %}
+                    {% if request.user in user.followers.all %}
+                        <div id="follow_user" class="col 6 col-sm-1">
+                            <form action="{% url 'unfollow_user' user.id %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-row justify-content-center"> 
+                                    <button style="color: white; margin-top: 10px; margin-left: justify; margin-bottom: 10px;" name="follow" type="submit" value="Unfollow" class="btn btn-light">Unfollow</button>
+                                </div>
+                            </form>
+                        </div>
+                    {% else %}
+                    <div id="follow_user" class="col 6 col-sm-1">
+                        <form action="{% url 'follow_user' user.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-row justify-content-center"> 
+                                <button style="color: white; margin-top: 10px; margin-left: justify; margin-bottom: 10px;" name="unfollow" type="submit" value="Follow" class="btn btn-light">Follow</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if page_obj %}
+            {% for post in page_obj %}
+                <div id="post" class="border-top">
+                    {% if post.user.profile_picture %}
+                        <img class="rounded-circle" id="propic" src="{{ post.user.profile_picture }}">
+                    {% endif %}
+                    <strong id="username"><span style="color: black; text-docoration: none;">{{ post.user.username }}</span> &middot; {{ post.date_created|date:"f A · M j, Y" }}</strong><br>
+                    <h3>{{ post.post_body }}</h3>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user in post.post_reactions.all %}
+                            <div>
+                                <!--<form id="like_form" data-unlike=>-->
+                                <h2 style="color: red; display: inline;">&#9829;</h2>
+                                <h4 id="like_count" style="font-size: 28px; display: inline;">{{ post.post_reactions.count }}</h4>
+                                <button style="display: inline; color: white;" class="btn btn-light btn-sm" id="unlike_post" data-unlike="{{ post.id }}" type="submit" value="unlike">Unlike</button><br>
+                            </div>
+                        {% else %}
+                            <div>
+                                <h2 style="color: grey; display: inline;">&#9829;</h2>
+                                <h4 id="like_count" style="font-size: 28px; display: inline;">{{ post.post_reactions.count }}</h4>
+                                <button style="display: inline; color: white;" class="btn btn-light btn-sm" id="like_post" data-like="{{ post.id }}" type="submit" value="Like">Like</button><br>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div>
+                            <h2 style="color: grey; display: inline;">&#9829;</h2>
+                            <h4 id="like_count" style="font-size: 28px; display: inline;">{{ post.post_reactions.count }}</h4>
+                            <a href="{% url 'login' %}"><button style="display: inline; color: white;" class="btn btn-light btn-sm">Like</button></a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            {% if request.user.id == user.id %}
+                <div id="post" class="border-top">
+                    <h3>You have not made any posts yet...</h3>
+                </div>
+            {% else %}
+                <div id="post" class="border-top">
+                    <h3>{{ user }} has not made any posts yet...</h3>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <div id="pagination">
+        <nav aria-label="Page navigation example">
+            <span class="step-links">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page=1">&laquo; First</a></li>
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    
+                    <span class="current">
+                    <li class="page-item" aria-current="page">
+                        <a style="background-color: #00BFFF; color: white;" class="page-link" href="#">{{ page_obj.number }}<span class="sr-only">(current)</span></a>
+                    </li>
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                        <li class="page-item"><a style="background-color: white; color: #00BFFF;" class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </span>
+        </nav>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/posts.js' %}"></script>
+{% endblock %}

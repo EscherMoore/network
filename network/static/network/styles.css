@@ -1,0 +1,65 @@
+.pages {
+    display: none;
+}
+
+.body {
+    text-align: center;
+}
+
+#page {
+    margin-left: 400px;
+    margin-right: 400px;
+    margin-top: 50px;
+    margin-bottom: 25px;
+}
+
+#submitted {
+    width: 100%;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+#pagination {
+    margin-top: 15px;
+}
+
+#post-contents {
+
+}
+
+#title_of_page {
+    padding: 25px;
+    /*font-weight: bold;*/
+}
+
+#post {
+    padding: 25px;
+}
+
+#username {
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+#propic {
+    margin-bottom: 15px;
+    width: 100px;
+    height: 100px;
+}
+
+#follow_button {
+    margin-left: 25px;
+}
+
+input {
+    margin: 5px;
+}
+
+button {
+    background-color: #00BFFF !important;
+    margin: 5px;
+}
